@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  ai-bug-reporter-backend:
+    container_name: ai-bug-reporter-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/venv  # Exclude virtual environment
+      - /app/__pycache__  # Exclude Python cache
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - ai-bug-reporter-network
+
+networks:
+  ai-bug-reporter-network:
+    driver: bridge

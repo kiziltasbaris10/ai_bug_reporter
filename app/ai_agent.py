@@ -1,20 +1,19 @@
 import os
 import json
 from dotenv import load_dotenv
-load_dotenv()
 from openai import OpenAI
-from models import BugReport
-from log_analyzer import analyze_log_advanced
+from app.models import BugReport
+from app.log_analyzer import analyze_log_advanced
 
-# ✅ Debug satırı buraya:
+load_dotenv()
+# Debug için API Key’in ilk 5 karakterini yazdıralım
 print("🔐 API Key (ilk 5 karakter):", os.getenv("OPENAI_API_KEY")[:5])
 
-# OpenAI istemcisi başlat
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_bug_report_from_ai(log_content: str) -> BugReport:
     rule_based_analysis = analyze_log_advanced(log_content)
-    
+
     prompt = f"""You are an expert QA engineer. Analyze the following technical log and generate a bug report. Respond ONLY with valid JSON matching this format:
 
 {{
@@ -65,24 +64,3 @@ Log content:
             confidence_score=0.2
         )
 
-log_content = """
-[ERROR] 2024-05-25 14:02:17 - API call to /get-user failed with status 500.
-Traceback (most recent call last):
-  File "app.py", line 42, in <module>
-    response = requests.get(url)
-  File "requests/api.py", line 75, in get
-    return request("get", url, params=params, **kwargs)
-requests.exceptions.HTTPError: 500 Server Error
-"""
-
-
-def analyze_log_advanced(log):
-    return {
-        "category": "API Error",
-        "reason": "Internal Server Error (500)",
-        "suggestion": "Check backend API route /get-user and server logs"
-    }
-
-bug_report = generate_bug_report_from_ai(log_content)
-print("🪲 AI Bug Report:")
-print(bug_report)
