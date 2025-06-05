@@ -1,36 +1,36 @@
 import streamlit as st
 import requests
+from config import BACKEND_URL
 
-st.set_page_config(page_title='AI Bug Reporter', layout='centered')
+# Sayfa başlığı
+st.set_page_config(page_title="AI Bug Reporter MVP")
+st.title("AI Bug Reporter")
 
-st.title('🐞 AI Bug Reporter')
+st.write("Upload your log file and let AI analyze it.")
 
-st.markdown("Enter the details of the bug below:")
+# Log dosyası yükleme
+uploaded_file = st.file_uploader("Upload Log File", type=["txt", "log", "json"])
 
-title = st.text_input('Bug Title')
-description = st.text_area('Bug Description')
-log = st.text_area('Log Output')
+if uploaded_file is not None:
+    # Dosya içeriğini oku
+    log_content = uploaded_file.getvalue().decode("utf-8")
+    st.subheader("Uploaded Log Content:")
+    st.code(log_content, language="text")
 
-if st.button('Submit Bug Report'):
-    if not title or not description or not log:
-        st.warning('Please fill in all fields.')
-    else:
-        with st.spinner('Submitting...'):
-            try:
-                response = requests.post(
-                    'http://localhost:8010/report-bug',
-                    json={
-                        'title': title,
-                        'description': description,
-                        'log': log
-                    }
-                )
-                if response.status_code == 200:
-                    data = response.json()
-                    st.success('✅ Bug report submitted successfully!')
-                    st.subheader('📊 Log Analysis')
-                    st.json(data['analysis'])
-                else:
-                    st.error(f'Server error: {response.status_code}')
-            except Exception as e:
-                st.error(f'An error occurred: {str(e)}')
+    if st.button("Send to Backend"):
+        try:
+            # Backend'e POST isteği gönder
+            response = requests.post(BACKEND_URL, json={"log_content": log_content})
+
+            if response.status_code == 200:
+                st.success("Log successfully sent and processed!")
+                st.subheader("AI Bug Report:")
+                st.json(response.json())
+            else:
+                st.error(f"Backend Error: {response.status_code} - {response.text}")
+        except requests.exceptions.ConnectionError:
+            st.error("Cannot connect to backend. Make sure backend is running.")
+        except Exception as e:
+            st.error(f"Error: {e}")
+
+st.info("After uploading the log file, AI will generate a bug report.")

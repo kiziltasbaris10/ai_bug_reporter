@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   ai-bug-reporter-backend:
@@ -10,8 +10,8 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-      - /app/venv  # Exclude virtual environment
-      - /app/__pycache__  # Exclude Python cache
+      - /app/venv
+      - /app/__pycache__
     env_file:
       - .env
     environment:
@@ -31,6 +31,18 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    networks:
+      - ai-bug-reporter-network
+
+  ai-bug-reporter-frontend:
+    container_name: ai-bug-reporter-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      - ai-bug-reporter-backend
     networks:
       - ai-bug-reporter-network
 

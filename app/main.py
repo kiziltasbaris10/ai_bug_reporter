@@ -1,13 +1,27 @@
 from fastapi import FastAPI
-from app.models import BugReport
-from app.ai_agent import generate_bug_report_from_ai
+from pydantic import BaseModel
+import random
 
 app = FastAPI()
 
+class LogRequest(BaseModel):
+    log_content: str
+
 @app.get("/")
-def root():
+async def root():
     return {"message": "AI Bug Reporter Backend is running!"}
 
-@app.post("/analyze-log", response_model=BugReport)
-def analyze_log(log: str):
-    return generate_bug_report_from_ai(log)
+@app.post("/analyze-log")
+async def analyze_log(request: LogRequest):
+    dummy_response = {
+        "title": "Database Connection Error",
+        "description": "Failed to connect to database due to timeout.",
+        "steps_to_reproduce": "1. Start the app\n2. Attempt login\n3. Observe error",
+        "expected_outcome": "User should log in successfully",
+        "actual_outcome": "Connection timeout error",
+        "priority": random.choice(["Low", "Medium", "High"]),
+        "error_type": "DATABASE",
+        "analysis_method": "dummy",
+        "confidence_score": 0.5
+    }
+    return {"status": "success", "ai_bug_report": dummy_response}
