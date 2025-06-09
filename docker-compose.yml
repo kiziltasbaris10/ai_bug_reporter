@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8001:8001"  # Host port 8001'e güncellendi
     volumes:
       - .:/app
       - /app/venv
@@ -17,7 +17,7 @@ services:
     environment:
       - NODE_ENV=development
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]  # Port tutarlı
       interval: 30s
       timeout: 30s
       retries: 3
@@ -43,6 +43,9 @@ services:
       - "8501:8501"
     depends_on:
       - ai-bug-reporter-backend
+    environment:
+      # Frontend'in backend'e erişimi için
+      - BACKEND_URL=http://ai-bug-reporter-backend:8001
     networks:
       - ai-bug-reporter-network
 

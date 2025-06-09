@@ -1,1 +1,1 @@
-BACKEND_URL = "http://ai-bug-reporter-backend:8000/analyze-log"
+BACKEND_URL = "http://localhost:8001/analyze-log"

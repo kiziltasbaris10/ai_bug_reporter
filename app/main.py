@@ -4,6 +4,8 @@ import random
 
 app = FastAPI()
 
+print("✅ Correct main.py loaded with health endpoint")
+
 class LogRequest(BaseModel):
     log_content: str
 
@@ -25,3 +27,7 @@ async def analyze_log(request: LogRequest):
         "confidence_score": 0.5
     }
     return {"status": "success", "ai_bug_report": dummy_response}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "Backend is healthy"}
